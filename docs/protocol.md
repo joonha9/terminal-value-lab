@@ -13,9 +13,9 @@ exploration are labelled as such and are tested only on validation and test data
   hands? Do the answers to Q1 and Q2 differ?
 - **Q3.** Can AI agents write interpretable conditional TV rules that beat the best single
   formula and random search with the same budget? What share of a GBM's gain do they capture?
-- **Q4 (proposed, separate pre-registration).** Does the gap between Gordon value and market
-  value predict future stock returns beyond known factors? Needs monthly returns; decided
-  before freezing whether it joins v1 or becomes a separate later pre-registration.
+- **Q4 (not in v1; decided 2026-11-07).** Does the gap between Gordon value and market value
+  predict future stock returns beyond known factors? It needs monthly returns. It will be a
+  separate pre-registration after the v1 results.
 
 ## 2. Data and sample (fixed)
 
@@ -35,10 +35,24 @@ exploration are labelled as such and are tested only on validation and test data
 
 ## 3. Truths and grading
 
+**M and D are co-primary** (decided 2026-11-07). D′ is used only for the paired D-versus-D′
+comparisons (T6, T7).
+
+Windows per split (counts only, before method-definedness):
+
+| Split | M | D | D′ |
+|---|---|---|---|
+| Exploration | 3,948 | 815 | 498 |
+| Validation | 4,063 | 742 | 453 |
+| Test | 4,345 | 810 | 483 |
+
+In exploration about 42% of D′ windows had every core method defined. T6 and T7 therefore
+rest on about 200 firms per split.
+
 | Truth | Windows | Fundamentals | Value compared |
 |---|---|---|---|
-| **M** (main) | survived or shrank by t+5, `quality_ok` at t+5, EV > 0 | year t+5, realized | market EV, June 30 of t+6 |
-| **D** | acquired, completion after t's valuation date and by t+5's; last pre-deal year L with t < L < t+5 | year L, realized | deal EV = deal equity + net claims at L |
+| **M** (co-primary) | survived or shrank by t+5, `quality_ok` at t+5, EV > 0 | year t+5, realized | market EV, June 30 of t+6 |
+| **D** (co-primary) | acquired, completion after t's valuation date and by t+5's; last pre-deal year L with t < L < t+5 | year L, realized | deal EV = deal equity + net claims at L |
 | **D′** | same firms as D, deal announced after June 30 of L+1 | year L | market EV, June 30 of L+1 (pre-announcement) |
 
 Multiples, growth and discount rates always use information at t only.
@@ -96,7 +110,8 @@ Labels: **[pre]** stated before exploration; **[expl]** formed from exploration,
 | T8 | best agent rule − best single method; − best random rule | M |
 
 Inference: firm-clustered bootstrap (2,000 reps) for differences in medians, with 95% CIs.
-Holm correction across T1–T8 at 5%. Report every test whatever the result.
+Holm correction across T1–T8 at 5%. T1–T5 are also run on truth D (labelled T1D–T5D)
+and enter the same Holm family. Report every test whatever the result.
 
 ## 7. Agents (Q3)
 
@@ -140,7 +155,7 @@ See `docs/phase1_exploration.md`. On t = 2015–16:
 
 ## 11. Before freezing
 
-- [ ] Decide: Q4 in v1 or later; truth D co-primary with M or secondary.
-- [ ] Literature check: Courteau, Kao & Richardson (2001); Kaplan & Ruback (1995); others.
-  Make sure Q1/Q2 are positioned against them. Citations are unverified until read.
+- [x] Q4 deferred to a later pre-registration; truth D co-primary with M (2026-11-07).
+- [x] Literature check (2026-11-07): `docs/literature.md`. Courteau, Kao & Richardson (2001) and
+  Kaplan & Ruback (1995) verified; positioning written. Others are listed as "to read".
 - [ ] User approval of this file → tag `protocol-v1` → push.
