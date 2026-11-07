@@ -40,23 +40,34 @@ buyer and 37% are take-privates.
 **In the 5-year windows**, 3,231 of the 4,097 exited windows (79%) are acquisitions, 618 are
 inactive and 218 are still listed. Most attrition is M&A with an observed price, not failure.
 
-## Acquisition EV
+## Acquisition EV (corrected 2026-11-07)
 
-`acq_ev` = deal value (equity, full acquisitions only) + debt + minority interest + preferred
-− cash, all from the firm's last panel row. This matches the panel's EV definition.
+FactSet's transaction value includes **gross debt assumed**. Test on 809 deals with a
+pre-announcement panel price. We take the implied **equity** premium (equity paid / market cap)
+by leverage bin; the right definition should give a flat premium at a plausible level.
 
-- ln(acq EV / last panel EV): median +0.31 (premium plus drift).
-- Premium, ln(deal equity / market cap at deal): median +0.39.
-- FactSet's "EV at completion" equals the transaction value in 78% of deals. It often omits
-  net debt (Activision: EV = equity value despite > $13B cash), so it is not used. It is kept
-  in the file for reference.
+| Reading of transaction value | Premium by leverage (net cash > 20% … net debt > 100% of mcap) | Spread |
+|---|---|---|
+| equity only | 0.32, 0.32, 0.39, 0.50, 0.61, 1.12 | 0.80 |
+| **equity + gross debt** | **0.29, 0.27, 0.24, 0.25, 0.10, 0.18** | **0.19** |
+| equity + net debt | 0.58, 0.38, 0.33, 0.28, 0.21, 0.28 | 0.38 |
+
+Examples: Sprint (market cap $27B, transaction value $64B) and Celgene include debt. Red Hat
+and Activision are equity only. FactSet mixes the two by deal, but gross debt dominates.
+
+Rule (balance sheet and deal value only; no market prices, so truth D is not tied to D′):
+- `gross` (1,280 deals): deal EV = transaction value − cash + minority + preferred.
+- `equity_only` (102 deals, transaction value ≤ debt): deal EV = transaction value + debt +
+  minority + preferred − cash.
+
+Robustness: firms with |net claims| < 20% of market cap, where both readings nearly coincide.
+FactSet's "EV at completion" equals the transaction value in 85% of deals and is not used.
 
 ## Open protocol decision (Phase 2)
 
 How acquired windows enter the main test. Proposed:
-- **Primary:** survivors + shrunk firms (as now), plus acquired firms with
-  outcome = acq EV rolled forward from completion to the t+5 valuation date at WACC_t
-  (proceeds reinvested at the cost of capital).
+- Superseded: acquired firms have no t+5 statements, so they are graded at their last
+  pre-deal year (truth D in `docs/protocol.md`), not rolled forward to t+5.
 - **Robustness:** survivors only; and acquired firms graded at the completion date against TV
   discounted back from t+5.
 - Inactive firms (no price): intention-to-treat with a pre-declared rule. One option is

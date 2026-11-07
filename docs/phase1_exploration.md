@@ -96,32 +96,33 @@ Firm-clustered bootstrap, 95% CIs (difference in median |e|; negative = first me
 the last pre-deal fiscal year L, with t < L < t+5. L = t is excluded because there the firm's
 own multiple equals the market truth by construction. Multiples, g and WACC still come from t.
 On the **same 211 firms with the same fundamentals**, two truths:
-- A = deal EV (deal equity + net claims)
+- A = deal EV
 - B = market EV at June 30 of L+1, before the deal was announced
+
+**Correction (2026-11-07).** A first version added net debt to FactSet's transaction value,
+which already includes gross debt, so debt was counted twice. That version showed Gordon as
+"unbiased against deal prices" (+0.02). The finding was an artifact and is withdrawn.
+The definition test is in `docs/exits.md`. Corrected results:
 
 | Method | A: median abs | A: bias | B: median abs | B: bias |
 |---|---|---|---|---|
-| Gordon, g 2.5%, WACC | 0.570 | **+0.016** | 0.656 | **+0.409** |
-| Gordon, 3-yr avg FCF | 0.552 | −0.019 | 0.677 | +0.310 |
-| Exit, FF12 median | 0.412 | −0.235 | 0.365 | +0.116 |
-| Exit, Damodaran-industry median | **0.373** | −0.248 | 0.320 | +0.129 |
-| Exit, own multiple at t | 0.433 | −0.315 | **0.254** | +0.076 |
-| Exit, Damodaran 5-yr avg | 0.421 | −0.335 | 0.317 | +0.036 |
-| 50/50 blend | 0.446 | −0.027 | 0.534 | +0.315 |
+| Gordon, g 2.5%, WACC | 0.716 | +0.317 | 0.656 | +0.409 |
+| Gordon, 3-yr avg FCF | 0.655 | +0.255 | 0.677 | +0.310 |
+| Exit, FF12 median | 0.436 | −0.025 | 0.365 | +0.116 |
+| Exit, Damodaran-industry median | **0.362** | +0.052 | 0.320 | +0.129 |
+| Exit, own multiple at t | 0.366 | −0.039 | **0.254** | +0.076 |
+| Exit, Damodaran 5-yr avg | 0.384 | −0.103 | 0.317 | +0.036 |
+| 50/50 blend | 0.594 | +0.208 | 0.534 | +0.315 |
 
-The deal premium over the pre-announcement market EV is ln 0.40 (median), with IQR 0.19–0.57.
+Deal EV over pre-announcement market EV: median ln 0.15, IQR −0.05 to 0.35.
 
 Observations:
-- **Gordon is unbiased against deal prices and overvalues market prices by about the same
-  amount as the premium (+0.41 vs 0.40).** Standard practitioner Gordon inputs reproduce the
-  level at which control changes hands, not the minority market price. Caveat: targets may be
-  selected precisely because the market priced them below DCF value.
-- Exit multiples still have the lowest dispersion under both truths. After removing each
-  method's own bias, Gordon's error is 0.56–0.59 and the exits' is 0.22–0.36.
-- **The ranking depends on the truth.** The firm's own multiple is best against the market
-  (0.254) but only 4th against deals (0.433). Industry medians are best against deals. Acquirers
-  look less like the firm's own market history than the market does.
-- Against PE buyers, Gordon's disadvantage is half as large (0.06 vs 0.13 for strategic
-  buyers). The sample is small (155 / 374).
+- **Exit multiples beat Gordon against both truths.** The main Phase 1 result survives the
+  switch to a non-market truth. Circularity does not drive it.
+- Gordon overvalues deal prices too (+0.32), a little less than market prices. The gap is
+  mechanical: for every method, bias against A = bias against B − deal premium.
+- The own multiple is best against the market and nearly tied for best against deals (0.366 vs
+  0.362). The earlier "4th against deals" came from the double count.
+- No difference between PE and strategic buyers after the correction.
 
 Caveat: small common sample (211). This is exploration only.

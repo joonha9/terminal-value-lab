@@ -36,7 +36,7 @@ exploration are labelled as such and are tested only on validation and test data
 ## 3. Truths and grading
 
 **M and D are co-primary** (decided 2026-11-07). D′ is used only for the paired D-versus-D′
-comparisons (T6, T7).
+comparison (T7).
 
 Windows per split (counts only, before method-definedness):
 
@@ -46,7 +46,7 @@ Windows per split (counts only, before method-definedness):
 | Validation | 4,063 | 742 | 453 |
 | Test | 4,345 | 810 | 483 |
 
-In exploration about 42% of D′ windows had every core method defined. T6 and T7 therefore
+In exploration about 42% of D′ windows had every core method defined. T7 therefore
 rest on about 200 firms per split.
 
 | Truth | Windows | Fundamentals | Value compared |
@@ -92,9 +92,11 @@ Labels: **[pre]** stated before exploration; **[expl]** formed from exploration,
 - **H4 [pre, expected null after exploration]** A fixed 50/50 blend beats the best pure method.
 - **H5 [pre]** Agent rules beat (a) the best single method chosen on exploration + validation and
   (b) random search with the same budget.
-- **H6 [expl]** Against truth D, Gordon's bias is smaller in absolute value than against D′, on the
-  same firms.
-- **H7 [expl]** The firm's own multiple ranks higher against D′ than against D.
+- ~~H6~~ dropped (2026-11-07). "Gordon's bias is smaller against D than D′" is mechanical:
+  for every method, bias against D = bias against D′ − deal premium.
+- **H7 [expl, weak]** The firm's own multiple ranks higher against D′ than against D. After the
+  deal-EV correction, exploration support is weak (1st vs 2nd, 0.366 vs 0.362).
+- **H8 [expl]** Against truth D, the FF12 exit beats Gordon (T1D). Exploration: 0.436 vs 0.716.
 
 ## 6. Pre-registered tests (validation, then test)
 
@@ -105,8 +107,8 @@ Labels: **[pre]** stated before exploration; **[expl]** formed from exploration,
 | T3 | low- minus high-spread tercile of (abs e_G − abs e_E) | M |
 | T4 | Damodaran 5-yr − Damodaran at t, cyclical FF12 | M |
 | T5 | 50/50 log blend − best of {Gordon g2.5, FF12 exit} | M |
-| T6 | abs bias of Gordon: D minus D′ | D, D′ |
-| T7 | rank of own multiple: D′ vs D | D, D′ |
+| ~~T6~~ | dropped (mechanical, see H6) | |
+| T7 | median abs e: own multiple − Damodaran-industry median, D′ minus D (rank change) | D, D′ |
 | T8 | best agent rule − best single method; − best random rule | M |
 
 Inference: firm-clustered bootstrap (2,000 reps) for differences in medians, with 95% CIs.
@@ -128,7 +130,8 @@ and enter the same Holm family. Report every test whatever the result.
 
 ## 8. Robustness (reported, not hypothesis tests)
 
-Horizon 3; Treasury + 5% discount rate; annual ERP instead of monthly; without the quality
+Horizon 3; Treasury + 5% discount rate; truth D restricted to low-leverage targets
+(|net claims| < 20% of market cap); truth D with the old (double-count) definition, for the record; annual ERP instead of monthly; without the quality
 screen; survivors only versus survivors + shrank; FCF ex-SBC; truth D restricted to cash deals
 and to PE buyers.
 
@@ -136,8 +139,11 @@ and to PE buyers.
 
 See `docs/phase1_exploration.md`. On t = 2015–16:
 - FF12 exit beats Gordon by 0.16 in median |e| (truth M).
-- Gordon bias is +0.25 against M, about 0 against D, and +0.41 against D′.
-- The own multiple is best against M and D′, not against D.
+- Gordon bias is +0.25 against M, +0.32 against D, and +0.41 against D′ (corrected deal EV).
+- Exit beats Gordon against M and D.
+- The own multiple is best against M and D′ and nearly tied for best against D.
+- A first deal-EV definition double-counted debt and briefly suggested "Gordon is unbiased
+  against deals"; that finding was withdrawn after the definition test (`docs/exits.md`).
 - Energy supports H3.
 - A fixed blend does not help.
 

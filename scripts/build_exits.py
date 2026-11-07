@@ -95,13 +95,24 @@ def main() -> None:
         [ex.in_window.eq(True), ex.complete_date.notna(), ex.listing_status.eq(0)],
         ["acquired", "acquired_late", "listed"], default="inactive")
 
-    # acquisition EV on the panel's EV definition: equity paid + last balance-sheet net claims
-    net_claims = (ex.last_debt.fillna(0) + ex.last_minority.fillna(0) + ex.last_preferred.fillna(0)
-                  - ex.last_cash.fillna(0))
+    # Acquisition EV on the panel's EV definition (checked 2026-11-07, docs/exits.md):
+    # FactSet transaction value = equity paid + GROSS debt assumed. Under that reading the
+    # implied equity premium is flat across leverage (~0.25); reading it as equity only makes
+    # the premium rise from 0.32 to 1.12 with leverage (debt counted twice). So
+    #   deal EV = transaction value - cash + minority + preferred      (rule "gross")
+    # except when transaction value <= debt (6.8%): there it can only be equity, so
+    #   deal EV = transaction value + debt + minority + preferred - cash  (rule "equity_only")
+    # The rule uses the deal value and the balance sheet only, never market prices.
+    D, C = ex.last_debt.fillna(0), ex.last_cash.fillna(0)
+    MI, PF = ex.last_minority.fillna(0), ex.last_preferred.fillna(0)
     full = ex.transaction_type.eq("Acquisition / Merger")
-    ex["acq_equity"] = ex.deal_value.where(full)
-    ex["acq_ev"] = ex.acq_equity + net_claims
-    ex["acq_ev_source"] = np.where(ex.acq_ev.notna(), "deal_value+net_debt", None)
+    tv = ex.deal_value.where(full)
+    gross = tv > D
+    ex["acq_ev_rule"] = np.where(tv.isna(), None, np.where(gross, "gross", "equity_only"))
+    ex["acq_equity"] = np.where(gross, tv - D, tv)
+    ex["acq_ev"] = np.where(gross, tv - C + MI + PF, tv + D + MI + PF - C)
+    ex["acq_ev_old_double_count"] = tv + D + MI + PF - C   # kept for the record only
+    ex["net_claims_to_mcap"] = (D + MI + PF - C) / ex.last_mkt_cap
     ex.to_csv(P.PROC / "exits.csv", index=False)
 
     # ---- report -----------------------------------------------------------------------
@@ -115,7 +126,7 @@ def main() -> None:
     r1 = np.log(a.acq_ev / a.last_ev).where((a.acq_ev > 0) & (a.last_ev > 0))
     r2 = np.log(a.deal_ev_fs / a.last_ev).where((a.deal_ev_fs > 0) & (a.last_ev > 0))
     r3 = np.log(a.acq_equity / a.mktcap_at_deal)
-    print("ln(acq EV ours / last panel EV):", r1.quantile([.05, .25, .5, .75, .95]).round(3).to_dict())
+    print("acq EV rule:", a.acq_ev_rule.value_counts().to_dict()); print("ln(acq EV ours / last panel EV):", r1.quantile([.05, .25, .5, .75, .95]).round(3).to_dict())
     print("ln(FactSet EV at completion / last panel EV):", r2.quantile([.05, .25, .5, .75, .95]).round(3).to_dict())
     print("ln(deal equity / market cap at deal) = premium:", r3.quantile([.05, .25, .5, .75, .95]).round(3).to_dict())
     print("acquired_late: months from last FYE:",
