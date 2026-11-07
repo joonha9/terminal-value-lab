@@ -153,9 +153,10 @@ Aim: phases 0–1 done before the meeting with Prof. Miao Liu (~2026-11-16).
    2026-11-07). Disclose that the sample is post-2015 and mostly low-rate. The r − g
    mechanism is tested cross-sectionally (low- vs high-WACC firms within a year) and across
    cohorts (rf 0.7–2.9% at t; outcomes 2020–25). Horizon-3 windows reach t = 2022.
-5. Exit classification and acquisition prices: FactSet (not FMP), two exports. One is the
-   inactive date and reason for 2,589 IDs (`data/processed/exit_ids_only.txt`). The other
-   is FactSet M&A completed deals with US public targets, 2016 onward. Pending the user's export.
+5. Exit classification and acquisition prices: FactSet (not FMP). **Done 2026-11-07**
+   (`docs/exits.md`): of 2,589 leavers, 1,411 were acquired, 783 are inactive with no deal,
+   and 343 are still listed. 79% of exited 5-year windows are acquisitions with an observed
+   price. How they enter grading is a Phase 2 decision.
 
 ## 10. Extensions toward a deeper study
 
