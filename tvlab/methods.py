@@ -59,9 +59,14 @@ def damodaran_longrun(mult: pd.DataFrame, years: int = 5) -> pd.Series:
 def predict_all(w: pd.DataFrame, fy: pd.DataFrame) -> pd.DataFrame:
     """All Phase-1 methods for windows w. Returns a DataFrame of predicted EV_{t+H}."""
     H = int(w["horizon"].iloc[0])
+    # outcome year: t+H for windows; may vary by row (e.g. last pre-deal year for acquisitions)
+    tH_year = w["tH_year"] if "tH_year" in w else w["t"] + H
     r, r_s = w["wacc_t"], w["wacc_simple_t"]
     fcf, eb = w["fcf_tH"], _pos(w["ebitda_tH"])
-    fcf3 = w[[f"fcf_t{k}" for k in (H - 2, H - 1, H)]].mean(axis=1, skipna=False)
+    if {"fcf_tH_m1", "fcf_tH_m2"} <= set(w.columns):
+        fcf3 = w[["fcf_tH_m2", "fcf_tH_m1", "fcf_tH"]].mean(axis=1, skipna=False)
+    else:
+        fcf3 = w[[f"fcf_t{k}" for k in (H - 2, H - 1, H)]].mean(axis=1, skipna=False)
     out = {}
 
     for g in (0.02, 0.025, 0.03):
@@ -95,7 +100,7 @@ def predict_all(w: pd.DataFrame, fy: pd.DataFrame) -> pd.DataFrame:
     out["B50geo_G2.5_Eff12"] = np.sqrt(out["G_fcf_g2.5"] * out["E_ff12_med"])
 
     # references (not candidates)
-    out["REF_ff12_med_at_tH (look-ahead)"] = lookup(ff, w["t"] + H, w["ff12_t"]) * eb
+    out["REF_ff12_med_at_tH (look-ahead)"] = lookup(ff, tH_year, w["ff12_t"]) * eb
     out["REF_ev_t (no change)"] = w["ev_t"].where(w["ev_t"] > 0)
     return pd.DataFrame(out, index=w.index)
 

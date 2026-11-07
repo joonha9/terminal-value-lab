@@ -69,7 +69,7 @@ def load_listing_status() -> pd.Series:
 
 def main() -> None:
     fy = pd.read_pickle(P.PROC / "firm_years.pkl")
-    ex = pd.read_csv(P.PROC / "exit_ids.csv")
+    ex = pd.read_csv(P.PROC / "exit_ids.csv").drop(columns=["first_fy", "last_fy"], errors="ignore")
     last = (fy.sort_values("fiscal_year").groupby("id")
               .agg(last_fy=("fiscal_year", "last"), last_fye=("fye_date", "last"),
                    last_value_date=("value_date", "last"), last_mkt_cap=("mkt_cap", "last"),
