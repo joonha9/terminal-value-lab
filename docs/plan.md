@@ -149,6 +149,13 @@ Aim: phases 0–1 done before the meeting with Prof. Miao Liu (~2026-11-16).
 1. Grading: actual EV at t+5 is primary; market EV at t is secondary (Q3). **Yes.**
 2. Discount rate: Damodaran-based WACC (section 3). **Yes**; Treasury + 5% as robustness.
 3. FY2024–25 outcomes are the test set, with disclosure that they were opened before. **Yes.**
+4. Pre-2015 FactSet history (FY2005–14) for more rate regimes: **No** (too costly; decided
+   2026-11-07). Disclose that the sample is post-2015 and mostly low-rate. The r − g
+   mechanism is tested cross-sectionally (low- vs high-WACC firms within a year) and across
+   cohorts (rf 0.7–2.9% at t; outcomes 2020–25). Horizon-3 windows reach t = 2022.
+5. Exit classification and acquisition prices: FactSet (not FMP), two exports. One is the
+   inactive date and reason for 2,589 IDs (`data/processed/exit_ids_only.txt`). The other
+   is FactSet M&A completed deals with US public targets, 2016 onward. Pending the user's export.
 
 ## 10. Extensions toward a deeper study
 
