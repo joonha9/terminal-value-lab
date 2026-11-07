@@ -9,3 +9,6 @@ data/
 *.xls
 *.pkl
 *.csv
+
+# Results derive from FactSet data (aggregates, recipe scores, agent archives): not committed
+results/

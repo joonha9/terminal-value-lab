@@ -1,8 +1,40 @@
-# Terminal Value Lab: pre-registration protocol (v1, FROZEN 2026-11-07)
+# Terminal Value Lab: pre-registration protocol (v1.1, 2026-11-07)
 
-Status: **frozen.** Tag `protocol-v1` on github.com/joonha9/terminal-value-lab, pushed before
-any validation or test window was graded. Any later change is a new version (v1.1, …) with
-a dated changelog entry explaining why; v1 stays as the reference.
+Status: **v1.1, frozen 2026-11-07, before any agent run and before any validation or test
+window was graded.**
+- v1 (tag `protocol-v1`, pushed 2026-11-07) stays as the reference.
+- v1.1 is tagged `protocol-v1.1`.
+- Any later change is a new version with a dated changelog entry explaining why.
+- Text added or changed in v1.1 is marked **[v1.1]**.
+
+## Changelog
+
+**v1.1 (2026-11-07).** Amendment made after independent code and design reviews of the
+Phase 3 setup (`docs/errors_and_fixes.md` §I). It was made before any agent run and before
+validation or test was opened. Approved by the author on 2026-11-07.
+
+1. **New benchmark and test T8c.**
+   - **Why:** on exploration, one recipe without any split scores 0.368 in median |e|:
+     0.8 × own-multiple exit + 0.2 × Gordon (3-yr FCF, g 4%, Treasury + 5%). That beats the best
+     single method (0.415), the best of 1,000 random recipes (0.379) and the traits-only GBM
+     (0.406). Under v1, T8 could therefore be passed by tuning blend weights alone, with no
+     conditional rule.
+   - **Change:** the "best recipe without a split" becomes a benchmark (§7), and agent − it is
+     a new test, T8c, inside the Holm family (§6).
+2. **Grading convention for recipes** (§3, §7).
+   - v1's "common sample" is not defined for recipes that mix methods by firm.
+   - **Change:** recipes and their benchmarks are scored on one fixed evaluation set, the
+     windows where the FF12 exit is defined. Any undefined leaf falls back to the FF12 exit.
+3. **Inference details** (§6), which v1 did not specify:
+   - one-sided bootstrap p-values;
+   - the family, now m = 14;
+   - Holm decisions on test, with validation as replication;
+   - the H5 decision rule.
+4. **Agent isolation** (§7): proposers and critics run without tools.
+5. **Erratum:** H8 quoted Gordon's pre-fix error against truth D (0.716). The revised
+   exploration value is 0.646.
+
+Implementation details are in `docs/phase3_design.md`, frozen with this version.
 Everything in "Exploration findings" was seen before writing this. Hypotheses that come from
 exploration are labelled as such and are tested only on validation and test data.
 
@@ -94,11 +126,16 @@ Labels: **[pre]** stated before exploration; **[expl]** formed from exploration,
 - **H4 [pre, expected null after exploration]** A fixed 50/50 blend beats the best pure method.
 - **H5 [pre]** Agent rules beat (a) the best single method chosen on exploration + validation and
   (b) random search with the same budget.
+  - **[v1.1] Decision rule:** H5 is supported if T8a and T8b both reject after Holm.
+  - **[v1.1]** A *conditional* gain is claimed only if T8c also rejects.
+  - **[v1.1]** If the chosen agent recipe has no split, it is reported as "no conditional gain"
+    whatever T8a and T8b show.
 - ~~H6~~ dropped (2026-11-07). "Gordon's bias is smaller against D than D′" is mechanical:
   for every method, bias against D = bias against D′ − deal premium.
 - **H7 [expl, weak]** The firm's own multiple ranks higher against D′ than against D. After the
   deal-EV correction, exploration support is weak (1st vs 2nd, 0.366 vs 0.362).
-- **H8 [expl]** Against truth D, the FF12 exit beats Gordon (T1D). Exploration: 0.436 vs 0.716.
+- **H8 [expl]** Against truth D, the FF12 exit beats Gordon (T1D). Exploration: 0.436 vs 0.646
+  **[v1.1 erratum:** v1 said 0.716, the value before the rating-table fix**]**.
 
 ## 6. Pre-registered tests (validation, then test)
 
@@ -111,11 +148,23 @@ Labels: **[pre]** stated before exploration; **[expl]** formed from exploration,
 | T5 | 50/50 log blend − best of {Gordon g2.5, FF12 exit} | M |
 | ~~T6~~ | dropped (mechanical, see H6) | |
 | T7 | median abs e: own multiple − Damodaran-industry median, D′ minus D (rank change) | D, D′ |
-| T8 | best agent rule − best single method; − best random rule | M |
+| T8a | chosen agent rule − best single method | M |
+| T8b | chosen agent rule − chosen random rule | M |
+| **T8c [v1.1]** | chosen agent rule − chosen best recipe without a split | M |
 
 Inference: firm-clustered bootstrap (2,000 reps) for differences in medians, with 95% CIs.
-Holm correction across T1–T8 at 5%. T1–T5 are also run on truth D (labelled T1D–T5D)
-and enter the same Holm family. Report every test whatever the result.
+Holm correction at 5%. T1–T5 are also run on truth D (labelled T1D–T5D) and enter the same
+Holm family. Report every test whatever the result.
+
+**[v1.1] Details:**
+- **p-values:** every hypothesis is directional, so p is one-sided: the share of the 2,000
+  bootstrap statistics on the wrong side of 0, floored at 1/2,000. Bootstrap seed 0.
+- **Family:** T1–T5, T1D–T5D, T7, T8a, T8b, T8c, so **m = 14**.
+- **Split:** Holm decisions are made on **test**. T8 exists only on test, because finalists are
+  chosen on validation. Validation results for T1–T7 are reported in full as a replication
+  step, without Holm.
+- **Recipe metric:** T8a–c use median |e| on the test evaluation set under the recipe grading
+  convention (§7).
 
 ## 7. Agents (Q3)
 
@@ -127,10 +176,26 @@ and enter the same Holm family. Report every test whatever the result.
   Deterministic validator.
 - Loop: proposer (mechanism + falsifiable prediction) → blind critic → deterministic grader on
   exploration windows → archive. Claude Code subagents only. 5 runs × 30 proposals.
+  - **[v1.1]** Proposers and critics are subagents **without tools**. The orchestrator passes
+    the brief and saves the reply, and every raw reply is logged.
+- **[v1.1] Grading convention for recipes:**
+  - Every recipe and benchmark is scored on the same evaluation set: graded windows where the
+    FF12 exit is defined.
+  - A leaf that is undefined for a window uses the FF12 exit. For a blend, any undefined part
+    triggers the fallback.
+  - The chosen rules are also reported on the §3 common-sample and ITT metrics.
 - Benchmarks: best single method, random search (same budget), and a GBM ceiling. The GBM
   predicts ln(truth / FF12 exit) from the same traits; we report the share of its gain captured.
+  - **[v1.1]** Added: the **best recipe without a split**, from an exhaustive grid of single
+    leaves and 2-part blends.
+    - It is shown to proposers as the bar to beat.
+    - Its top 3 on exploration are chosen on validation like the finalists.
+  - **[v1.1]** Added, reported only: a GBM that also sees each method's log ratio to the FF12
+    exit.
 - Finalists: the top 3 per run on exploration, chosen once on validation. The single chosen rule
   is evaluated on test.
+  - **[v1.1]** The 3 finalists must have distinct predictions (behaviour fingerprint).
+  - **[v1.1]** Random finalists are chosen the same way per random run of 30.
 - Leakage control: recipes see traits only, never names or dates.
 
 ## 8. Robustness (reported, not hypothesis tests)
@@ -185,3 +250,15 @@ See `docs/phase1_exploration.md`, revised after the code review. On t = 2015–1
 - [x] Independent code review (2026-11-07). Fixes and their effect are in
   `docs/phase1_exploration.md` §5. High severity: wrong small-firm rating table, fixed.
 - [x] User approval (2026-11-07) → tag `protocol-v1` → push.
+
+**[v1.1] Before freezing v1.1**
+
+- [x] Independent code review and design review of the Phase 3 setup (2026-11-07). Findings
+  and fixes are in `docs/errors_and_fixes.md` §I; 32 tests pass.
+- [x] Author decisions (2026-11-07):
+  1. issue v1.1;
+  2. T8c inside the Holm family;
+  3. show the best recipe without a split to proposers;
+  4. inference details as in §6.
+- [x] Commit → tag `protocol-v1.1`.
+- [ ] Push (with author approval) before the first agent run.

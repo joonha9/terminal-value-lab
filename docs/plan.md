@@ -1,7 +1,10 @@
 # Terminal Value Lab: research plan (2026-11-07)
 
-Status: protocol v1 frozen 2026-11-07 (docs/protocol.md, tag protocol-v1). The three
-decisions in section 9 are made. Validation and test windows have not been graded.
+Status (2026-11-07): protocol v1 frozen (tag protocol-v1); amended to **v1.1** the same day,
+before any agent run (tag protocol-v1.1; changelog in docs/protocol.md). Phase 3 setup is done
+and reviewed: docs/phase3_design.md. Every error and correction is in docs/errors_and_fixes.md.
+Next: restart Claude Code, run the agent-isolation test, then the 5 agent runs. Validation and
+test windows have not been graded.
 
 ## 1. Questions
 
@@ -129,7 +132,8 @@ mismatches). The `quality_ok` flag is applied as the sample screen (user agreed 
 it is written into the protocol at Phase 2.
 
 Phase 1 done 2026-11-07 (exploration years only): `docs/phase1_exploration.md`. Exit
-multiples beat Gordon by 0.16 in median |ln error| (CI 0.12–0.19). H1 came out opposite
+multiples beat Gordon by 0.126 in median |ln error| (CI 0.098–0.155; first pass said 0.16 before
+the code-review fixes, see `docs/errors_and_fixes.md`). H1 came out opposite
 (Gordon overvalues at the low rates of 2016–17) and H2 reversed (Gordon worst where WACC is
 low). H3 is supported in Energy. A fixed 50/50 blend does not help (H4).
 
