@@ -126,3 +126,10 @@ Observations:
 - No difference between PE and strategic buyers after the correction.
 
 Caveat: small common sample (211). This is exploration only.
+
+### Rate-change check (added 2026-11-07)
+
+Gordon with the WACC of the outcome year (look-ahead reference) has a larger bias (+0.35,
+median |e| 0.62) than with WACC at t (+0.25, 0.58). The exploration outcome years 2020–21
+had very low rates. So the overvaluation does not come from rates moving between t and t+5;
+it points to the formula itself (r − g convexity).

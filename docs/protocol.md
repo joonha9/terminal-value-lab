@@ -75,7 +75,8 @@ reported by method-definedness. Firms still listed but out of the panel are excl
   (our panel) at t, the firm's own multiple at t, Damodaran aggregate at t, Damodaran 5-year
   average.
 - **Blends:** 50/50 in levels and in logs (Gordon g 2.5% + FF12 exit).
-- References only: actual industry multiple at t+H (look-ahead); EV_t (no change).
+- References only (look-ahead, never candidates): actual industry multiple at t+H; Gordon with
+  WACC at t+H, which separates formula error from the change in rates; EV_t (no change).
 - Code: `tvlab/methods.py` at the frozen commit.
 
 ## 5. Hypotheses
@@ -130,7 +131,8 @@ and enter the same Holm family. Report every test whatever the result.
 
 ## 8. Robustness (reported, not hypothesis tests)
 
-Horizon 3; Treasury + 5% discount rate; truth D restricted to low-leverage targets
+Horizon 3; Treasury + 5% discount rate; excluding windows whose t or t+5 row has a > 10x market-cap jump with calm assets
+(`mcap_jump_suspect`, 1–2% of windows); truth D restricted to low-leverage targets
 (|net claims| < 20% of market cap); truth D with the old (double-count) definition, for the record; annual ERP instead of monthly; without the quality
 screen; survivors only versus survivors + shrank; FCF ex-SBC; truth D restricted to cash deals
 and to PE buyers.

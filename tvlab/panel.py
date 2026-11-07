@@ -248,6 +248,22 @@ def add_quality(df: pd.DataFrame) -> pd.DataFrame:
     ratio = df["mkt_cap"] / df["total_assets"].where(df["total_assets"] > 0)
     df["mcap_to_assets"] = ratio
     df["quality_ok"] = df["total_assets"].fillna(0).ge(MIN_TOTAL_ASSETS) & ratio.le(MAX_MCAP_TO_ASSETS)
+
+    # Robustness flag only (not the main screen): market cap more than 10x away from the
+    # adjacent year's while total assets moved < 50%. Catches smaller reverse-split
+    # mis-scalings, but also genuine collapses and spikes. It looks at the NEXT year, so it is
+    # look-ahead and is never used to pick the main sample.
+    df = df.sort_values(["id", "fiscal_year"])
+    g = df.groupby("id")
+    lmc = np.log(df["mkt_cap"].where(df["mkt_cap"] > 0))
+    las = np.log(df["total_assets"].where(df["total_assets"] > 0))
+    flag = pd.Series(False, index=df.index)
+    for k in (1, -1):
+        adjacent = g["fiscal_year"].shift(k).eq(df["fiscal_year"] - k)
+        jump = (lmc - lmc.groupby(df["id"]).shift(k)).abs() > np.log(10)
+        calm = (las - las.groupby(df["id"]).shift(k)).abs() < np.log(1.5)
+        flag |= adjacent & jump & calm
+    df["mcap_jump_suspect"] = flag
     return df
 
 
@@ -267,8 +283,8 @@ def build_firm_years() -> pd.DataFrame:
 
 # ------------------------------------------------------------------- 4. windows
 OUTCOME_COLS = ["ev", "mkt_cap", "fcf", "fcf_ex_sbc", "ebitda", "ebit", "nopat", "sales",
-                "sbc", "roic", "in_universe", "quality_ok"]
-START_COLS = ["ticker", "name", "sic", "ff12", "dam_industry", "quality_ok", "mcap_to_assets",
+                "sbc", "roic", "in_universe", "quality_ok", "mcap_jump_suspect", "wacc"]
+START_COLS = ["ticker", "name", "sic", "ff12", "dam_industry", "quality_ok", "mcap_jump_suspect", "mcap_to_assets",
               "total_assets", "ev", "mkt_cap", "total_debt",
               "cash", "fcf", "fcf_ex_sbc", "fcf_simple", "ebitda", "ebit", "nopat", "sales",
               "sbc", "roic", "sales_growth_1y", "sales_growth_3y", "rnd_intensity",

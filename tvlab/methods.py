@@ -102,6 +102,10 @@ def predict_all(w: pd.DataFrame, fy: pd.DataFrame) -> pd.DataFrame:
     # references (not candidates)
     out["REF_ff12_med_at_tH (look-ahead)"] = lookup(ff, tH_year, w["ff12_t"]) * eb
     out["REF_ev_t (no change)"] = w["ev_t"].where(w["ev_t"] > 0)
+    # look-ahead reference: Gordon with the discount rate of the outcome year. Separates the
+    # formula's error from the 2016->2022 rate change (mirror of the look-ahead multiple).
+    if "wacc_tH" in w:
+        out["REF_G_fcf_g2.5_wacc_at_tH (look-ahead)"] = gordon(fcf, w["wacc_tH"], 0.025)
     return pd.DataFrame(out, index=w.index)
 
 
