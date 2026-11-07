@@ -1,6 +1,6 @@
 # Terminal Value Lab: research plan (draft, 2026-11-07)
 
-Status: data collected and verified, including discount-rate data (2026-11-07). The three
+Status: protocol v1 frozen 2026-11-07 (docs/protocol.md, tag protocol-v1). The three
 decisions in section 9 are made. Design not yet frozen. Nothing has been estimated on outcomes.
 
 ## 1. Questions

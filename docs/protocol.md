@@ -1,7 +1,8 @@
-# Terminal Value Lab: pre-registration protocol (DRAFT, 2026-11-07)
+# Terminal Value Lab: pre-registration protocol (v1, FROZEN 2026-11-07)
 
-Status: **draft, not frozen.** It is frozen by a tagged commit pushed to
-github.com/joonha9/terminal-value-lab before any validation or test window is graded.
+Status: **frozen.** Tag `protocol-v1` on github.com/joonha9/terminal-value-lab, pushed before
+any validation or test window was graded. Any later change is a new version (v1.1, …) with
+a dated changelog entry explaining why; v1 stays as the reference.
 Everything in "Exploration findings" was seen before writing this. Hypotheses that come from
 exploration are labelled as such and are tested only on validation and test data.
 
@@ -183,4 +184,4 @@ See `docs/phase1_exploration.md`, revised after the code review. On t = 2015–1
   Kaplan & Ruback (1995) verified; positioning written. Others are listed as "to read".
 - [x] Independent code review (2026-11-07). Fixes and their effect are in
   `docs/phase1_exploration.md` §5. High severity: wrong small-firm rating table, fixed.
-- [ ] User approval of this file → tag `protocol-v1` → push.
+- [x] User approval (2026-11-07) → tag `protocol-v1` → push.
