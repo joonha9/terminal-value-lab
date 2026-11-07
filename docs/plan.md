@@ -142,7 +142,6 @@ low). H3 is supported in Energy. A fixed 50/50 blend does not help (H4).
 | 4 Validate → test | each opened once | 0.5 day |
 | 5 Write-up | README, site, portfolio entry | 1 day |
 
-Aim: phases 0–1 done before the meeting with Prof. Miao Liu (~2026-11-16).
 
 ## 9. Decisions (made 2026-11-07)
 
@@ -168,4 +167,4 @@ Aim: phases 0–1 done before the meeting with Prof. Miao Liu (~2026-11-16).
 3. **Prospective test** of frozen rules on FY2026–27 data.
 4. **LLM look-ahead leakage:** agent performance on named vs de-identified data.
 
-Ask Prof. Liu which of 1 or 2 interests her; register 3 when finalists are frozen.
+Pick 1 or 2 as the next extension after the main test; register 3 when finalists are frozen.

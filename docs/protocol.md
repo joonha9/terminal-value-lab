@@ -14,8 +14,8 @@ exploration are labelled as such and are tested only on validation and test data
 - **Q3.** Can AI agents write interpretable conditional TV rules that beat the best single
   formula and random search with the same budget? What share of a GBM's gain do they capture?
 - **Q4 (proposed, separate pre-registration).** Does the gap between Gordon value and market
-  value predict future stock returns beyond known factors? To be discussed with Prof. Liu
-  before it is designed; it needs monthly returns.
+  value predict future stock returns beyond known factors? Needs monthly returns; decided
+  before freezing whether it joins v1 or becomes a separate later pre-registration.
 
 ## 2. Data and sample (fixed)
 
@@ -140,7 +140,7 @@ See `docs/phase1_exploration.md`. On t = 2015–16:
 
 ## 11. Before freezing
 
-- [ ] Prof. Liu's view on Q4, and whether truth D should be co-primary with M.
+- [ ] Decide: Q4 in v1 or later; truth D co-primary with M or secondary.
 - [ ] Literature check: Courteau, Kao & Richardson (2001); Kaplan & Ruback (1995); others.
   Make sure Q1/Q2 are positioned against them. Citations are unverified until read.
 - [ ] User approval of this file → tag `protocol-v1` → push.
