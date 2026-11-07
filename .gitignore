@@ -1,0 +1,11 @@
+.DS_Store
+__pycache__/
+*.pyc
+.venv/
+# FactSet data is licensed and must not be redistributed: never commit raw or derived data.
+# Damodaran / FRED files are free but re-downloadable: scripts/download_rates.sh
+data/
+*.xlsx
+*.xls
+*.pkl
+*.csv
