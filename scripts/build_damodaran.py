@@ -80,6 +80,16 @@ def build_betas() -> pd.DataFrame:
 def build_erp() -> tuple[pd.DataFrame, pd.DataFrame]:
     m = pd.read_excel(RAW / "ERPbymonth.xlsx", sheet_name=0)
     m = m.rename(columns=lambda c: norm(c))
+
+    def pct(s: pd.Series) -> pd.Series:  # a few cells are text like "4.06%"
+        txt = s.astype(str).str.strip()
+        is_pct = txt.str.endswith("%")
+        out = pd.to_numeric(s, errors="coerce")
+        out[is_pct] = pd.to_numeric(txt[is_pct].str.rstrip("%"), errors="coerce") / 100
+        return out
+
+    for c in ["T.Bond Rate", "ERP (T12m)", "ERP (T12 m with sustainable payout)", "ERP (Normalized)"]:
+        m[c] = pct(m[c])
     monthly = pd.DataFrame({
         "month_start": pd.to_datetime(m["Start of month"], errors="coerce"),
         "tbond": m["T.Bond Rate"],

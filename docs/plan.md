@@ -123,6 +123,11 @@ definition, market data June of t+6).
 
 ## 8. Phases
 
+Phase 0 done 2026-11-07: `tvlab/panel.py`, `docs/panel.md`. New finding: about 5% of
+universe market caps are untrustworthy (reverse-split mis-scaling, shells, de-SPAC
+mismatches). The `quality_ok` flag is proposed as a sample screen and must be settled
+before Phase 2.
+
 | Phase | Work | Est. |
 |---|---|---|
 | 0 Panel | merge module, FCF / tax / FF12 definitions, QA (CFO vs EBITDA − capex − tax, outliers), Treasury rate, Damodaran ERP / industry betas / spread table (vintages FY2015–25) + SIC mapping | 1–2 days |
