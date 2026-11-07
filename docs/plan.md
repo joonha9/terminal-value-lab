@@ -125,8 +125,13 @@ definition, market data June of t+6).
 
 Phase 0 done 2026-11-07: `tvlab/panel.py`, `docs/panel.md`. New finding: about 5% of
 universe market caps are untrustworthy (reverse-split mis-scaling, shells, de-SPAC
-mismatches). The `quality_ok` flag is proposed as a sample screen and must be settled
-before Phase 2.
+mismatches). The `quality_ok` flag is applied as the sample screen (user agreed 2026-11-07);
+it is written into the protocol at Phase 2.
+
+Phase 1 done 2026-11-07 (exploration years only): `docs/phase1_exploration.md`. Exit
+multiples beat Gordon by 0.16 in median |ln error| (CI 0.12–0.19). H1 came out opposite
+(Gordon overvalues at the low rates of 2016–17) and H2 reversed (Gordon worst where WACC is
+low). H3 is supported in Energy. A fixed 50/50 blend does not help (H4).
 
 | Phase | Work | Est. |
 |---|---|---|

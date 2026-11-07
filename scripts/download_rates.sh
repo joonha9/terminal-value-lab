@@ -13,7 +13,10 @@ get() { curl -fsS -L -o "$1" "$2" && echo "ok  $1"; }
 
 for f in histimpl.xls betas.xls ratings.xls indname.xls wacc.xls; do get "$D/$f" "$B/datasets/$f"; done
 get "$D/ERPbymonth.xlsx" "$B/implprem/ERPbymonth.xlsx"
+for y in 13 14; do get "$D/vebitda$y.xls" "$B/archives/vebitda$y.xls"; done
+get "$D/vebitda.xls" "$B/datasets/vebitda.xls"
 for y in 15 16 17 18 19 20 21 22 23 24; do
+  get "$D/vebitda$y.xls" "$B/archives/vebitda$y.xls"
   get "$D/betas$y.xls" "$B/archives/betas$y.xls"   # betasYY = January YY+1 release
   get "$D/wacc$y.xls"  "$B/archives/wacc$y.xls"
 done

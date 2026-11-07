@@ -75,3 +75,11 @@ Limitations to disclose:
 - Fallback (robustness): Treasury + 5%, β = 1.
 
 Industry cost-of-capital files `wacc{tt}.xls` are also downloaded, as a check on our WACCs.
+
+## Industry EV/EBITDA (added for Phase 1)
+
+`vebitda{tt}.xls` (Jan 2014 – Jan 2026 releases; current taxonomy from the Jan-2014 release)
+→ `multiples_by_vintage.csv`. Aggregate multiple (sum EV / sum EBITDA). From the Jan-2018
+release there are two blocks, "only positive EBITDA firms" and "all firms". We use "all
+firms", and the single block before that. The 5-year average for t uses releases t−4…t,
+with at least 2; t = 2015 and 2016 have only 3 and 4 releases.

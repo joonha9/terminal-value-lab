@@ -77,6 +77,39 @@ def build_betas() -> pd.DataFrame:
     return pd.concat(rows, ignore_index=True)
 
 
+def build_multiples() -> pd.DataFrame:
+    """US industry EV/EBITDA (aggregate: sum EV / sum EBITDA) by release. Files vebitda13..24
+    + current; the industry taxonomy is the current one from the Jan-2014 release on.
+    Releases from Jan 2018 have two blocks: 'Only positive EBITDA firms' then 'All firms'."""
+    rows = []
+    files = {t: RAW / f"vebitda{t % 100:02d}.xls" for t in range(2013, 2025)}
+    files[2025] = RAW / "vebitda.xls"
+    for t, f in files.items():
+        for _, d in pd.read_excel(f, sheet_name=None, header=None).items():
+            col0 = d[0].map(norm)
+            hdr = d.index[col0.str.lower().isin(["industry name", "industry"])]
+            if not len(hdr):
+                continue
+            h = hdr[0]
+            heads = [norm(c) for c in d.iloc[h]]
+            idx = [i for i, c in enumerate(heads) if c == "EV/EBITDA" or c.startswith("EV/EBITDA") and c[-1].isdigit() and "R&D" not in c]
+            block_row = [norm(c) for c in d.iloc[h - 1]] if h > 0 else []
+            t_ = d.iloc[h + 1:]
+            names = t_[0].map(norm).replace(NAME_FIX)
+            out = pd.DataFrame({"vintage_t": t, "industry": names,
+                                "n_firms": pd.to_numeric(t_[1], errors="coerce"),
+                                "ev_ebitda_a": pd.to_numeric(t_[idx[0]], errors="coerce")})
+            out["ev_ebitda_b"] = pd.to_numeric(t_[idx[1]], errors="coerce") if len(idx) > 1 else np.nan
+            out["block_a"] = "positive_only" if any("positive" in b.lower() for b in block_row) else "single"
+            rows.append(out[out.industry.ne("nan")])
+            break
+    m = pd.concat(rows, ignore_index=True)
+    # 'all firms' multiple: second block when two blocks exist, else the single block
+    m["ev_ebitda_all"] = np.where(m["ev_ebitda_b"].notna(), m["ev_ebitda_b"], m["ev_ebitda_a"])
+    m["ev_ebitda_pos"] = np.where(m["block_a"].eq("positive_only"), m["ev_ebitda_a"], np.nan)
+    return m[["vintage_t", "industry", "n_firms", "ev_ebitda_all", "ev_ebitda_pos", "block_a"]]
+
+
 def build_erp() -> tuple[pd.DataFrame, pd.DataFrame]:
     m = pd.read_excel(RAW / "ERPbymonth.xlsx", sheet_name=0)
     m = m.rename(columns=lambda c: norm(c))
@@ -196,6 +229,10 @@ def main() -> None:
     valid = set(betas.loc[betas.vintage_t == 2025, "industry"])
     firm_ind = build_firm_industry(valid)
 
+    mult = build_multiples()
+    mult.to_csv(OUT / "multiples_by_vintage.csv", index=False)
+    print("EV/EBITDA medians by vintage (all / positive-only):",
+          mult.groupby("vintage_t")[["ev_ebitda_all", "ev_ebitda_pos"]].median().round(1).to_dict("index"))
     betas.to_csv(OUT / "betas_by_vintage.csv", index=False)
     monthly.to_csv(OUT / "erp_monthly.csv", index=False)
     annual.to_csv(OUT / "erp_annual.csv", index=False)
