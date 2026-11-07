@@ -155,13 +155,27 @@ def build_spreads() -> tuple[pd.DataFrame, pd.DataFrame]:
     long["year"] = long["label"].str.extract(r"(\d{4})").astype(int)
     long = long.rename(columns={"Rating is": "rating"})[["year", "rating", "spread"]]
 
+    # ratings.xls layout: "For large non-financial service firms" (cols 0-3 under the ">" header)
+    # sits next to "For financial service firms" (cols 5-8; NOT used). The small/riskier
+    # non-financial table is a separate block further down, introduced by "For smaller and
+    # riskier ...". (A first version wrongly read cols 5-8 as the small-firm table; caught in
+    # code review 2026-11-07.)
     r = pd.read_excel(RAW / "ratings.xls", sheet_name=0, header=None)
-    hdr = r.index[r[0].astype(str).str.strip().eq(">")][0]
+    col0 = r[0].astype(str).str.strip()
+    hdr = r.index[col0.eq(">")][0]
+    assert "large non-financial" in str(r.iloc[hdr - 2, 0]).lower(), r.iloc[hdr - 2, 0]
+    assert "financial service" in str(r.iloc[hdr - 2, 5]).lower()
     blk = r.iloc[hdr + 1: hdr + 16]
+    small_title = r.index[col0.str.lower().str.startswith("for smaller and riskier")][0]
+    sblk = r.iloc[small_title + 3: small_title + 18]
     cov = pd.concat([
         pd.DataFrame({"firm_size": "large", "cov_gt": blk[0], "cov_le": blk[1], "rating": blk[2]}),
-        pd.DataFrame({"firm_size": "small", "cov_gt": blk[5], "cov_le": blk[6], "rating": blk[7]}),
+        pd.DataFrame({"firm_size": "small", "cov_gt": sblk[0], "cov_le": sblk[1], "rating": sblk[2]}),
     ]).dropna()
+    cov["cov_gt"] = pd.to_numeric(cov["cov_gt"]); cov["cov_le"] = pd.to_numeric(cov["cov_le"])
+    aaa = cov[cov.rating.eq("Aaa/AAA")].set_index("firm_size").cov_gt
+    assert aaa["large"] == 8.5 and aaa["small"] == 12.5, aaa.to_dict()
+    assert len(cov) == 30, len(cov)
     cur = pd.DataFrame({"year": 2026, "rating": blk[2].values, "spread": blk[3].values})
     long = pd.concat([long, cur], ignore_index=True)
     long["spread"] = pd.to_numeric(long["spread"])

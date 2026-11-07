@@ -60,6 +60,11 @@ Rule (balance sheet and deal value only; no market prices, so truth D is not tie
 - `equity_only` (102 deals, transaction value ≤ debt): deal EV = transaction value + debt +
   minority + preferred − cash.
 
+Re-check on exploration-window deals only (428 deals): the gross-debt reading is again the
+flattest (spread 0.14 vs 0.88 and 0.29). Script: `scripts/check_deal_ev_definition.py`.
+In 44 of 801 gross-rule deals, cash exceeds the transaction value, giving deal EV ≤ 0; they
+drop out of truth D and are reported.
+
 Robustness: firms with |net claims| < 20% of market cap, where both readings nearly coincide.
 FactSet's "EV at completion" equals the transaction value in 85% of deals and is not used.
 

@@ -35,7 +35,7 @@ pd.set_option("display.width", 220)
 
 def score(e: pd.DataFrame) -> pd.DataFrame:
     return pd.DataFrame({"n": e.notna().sum(), "median_abs": e.abs().median(), "bias": e.median(),
-                         "within_25pct": (e.abs() < LN25).sum() / e.notna().sum()}).round(3)
+                         "hit_rate_itt": (e.abs() < LN25).sum() / len(e)}).round(3)
 
 
 def main() -> None:

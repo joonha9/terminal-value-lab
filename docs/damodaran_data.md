@@ -14,7 +14,7 @@ Fiscal year t is valued on June 30 of t+1. For t we use only what was public by 
 | ERP (robustness) | `histimpl.xls`, "Implied ERP (FCFE)" | row Year = t (published Jan t+1) |
 | Industry unlevered beta | `betas{tt}.xls`, tt = t mod 100 (2025 → current `betas.xls`) | `vintage_t = t` |
 | Default spread by rating | `bondspreads24.xlsx` (2015–2025 labels) + current `ratings.xls` (2026) | label year t+1 |
-| Coverage → rating | current `ratings.xls` (large: mkt cap > $5B; small) | same for all years |
+| Coverage → rating | current `ratings.xls`: "large non-financial" block (mkt cap > $5B) and the separate "smaller and riskier non-financial" block lower in the sheet. The block beside the large table is for **financial-service firms** and is not used. | same for all years |
 
 **File-name trap:** `betasYY.xls` is the January YY+1 release (`betas16.xls` = 2017-01-05). The
 build script asserts each file's "Date updated" equals January t+1.

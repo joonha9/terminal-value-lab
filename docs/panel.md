@@ -24,10 +24,13 @@ Outputs (git-ignored) in `data/processed/`: `firm_years.pkl`, `windows_h5.pkl`, 
 4. **WACC** at June 30 of t+1, as in `docs/damodaran_data.md`. Marginal tax τ = 40% for
    t ≤ 2016 and 25% after (TCJA known by June 2018). D/E uses market cap and total debt.
    Coverage = EBIT / interest gives a synthetic rating (large firms: market cap > $5B).
-   Interest of 0 with no debt gives AAA. Debt with no interest field gives BBB (6% of rows).
-   Median WACC by year: 7.3, 6.8, 7.6, 8.1, 6.4, 5.0, 8.0, 9.7, 8.5, 8.3, 8.2% (t = 2015…2025).
-   By FF12: Utils 5.4% (lowest) to BusEq 8.6% (highest). No row has WACC < rf.
-   Rating mix: AAA 46%, D 23%. D arises when EBIT < 0. That is Damodaran's mechanics, and the
+   No debt gives AAA. Debt with missing or zero interest gives BBB. Small firms use Damodaran's
+   "smaller and riskier" table (AAA above coverage 12.5). The first version wrongly used the
+   financial-services table; fixed 2026-11-07.
+   Median WACC by year (after the rating-table fix): 7.6, 7.1, 7.8, 8.4, 6.8, 5.1, 8.2, 10.0,
+   8.8, 8.6, 8.5% (t = 2015…2025).
+   By FF12: Utils 5.7% (lowest) to Hlth 8.8% (highest). No row has WACC < rf.
+   Rating mix: AAA 27%, D 25%, BBB 15% (BBB includes debt with missing or zero interest, 12%). D arises when EBIT < 0. That is Damodaran's mechanics, and the
    debt weight is usually small. β_L > 3 for 2.7% of rows.
 5. **Windows.** One row per (firm, t) for firms in the universe at t, holding realized FCF
    t+1…t+H and fundamentals and EV at t+H. Status at t+H: survived (≥ $100M), shrank (< $100M),

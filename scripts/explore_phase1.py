@@ -39,15 +39,16 @@ def show(name: str, df: pd.DataFrame, note: str = "") -> None:
 
 
 def score(e: pd.DataFrame) -> pd.DataFrame:
+    # hit_rate_itt: |e| < ln 1.25 over ALL rows passed in; undefined counts as a miss (protocol §3)
     return pd.DataFrame({
         "n": e.notna().sum(),
         "median_abs_ln_err": e.abs().median(),
         "bias_median_ln": e.median(),
-        "within_25pct": (e.abs() < LN25).sum() / e.notna().sum(),
+        "hit_rate_itt": (e.abs() < LN25).sum() / len(e),
     }).round(3)
 
 
-def boot_diff(e: pd.DataFrame, a: str, b: str, firms: pd.Series, reps: int = 1000, seed: int = 0):
+def boot_diff(e: pd.DataFrame, a: str, b: str, firms: pd.Series, reps: int = 2000, seed: int = 0):
     """Firm-clustered bootstrap of median|e_a| - median|e_b| (negative = a better)."""
     rng = np.random.default_rng(seed)
     d = pd.DataFrame({"a": e[a].abs(), "b": e[b].abs(), "f": firms}).dropna()

@@ -118,8 +118,11 @@ and enter the same Holm family. Report every test whatever the result.
 
 ## 7. Agents (Q3)
 
-- Recipe DSL: JSON. Conditions (≤ 3 levels) on firm traits at t: FF12, size, growth, margins,
-  ROIC, leverage, FCF and EBITDA sign, WACC − g. Each leaf is a method + parameters or a blend weight.
+- Recipe DSL: JSON. Conditions (≤ 3 levels) on firm traits at t that exist in every split:
+  FF12, size (log sales, log assets), margins (EBITDA, EBIT), ROIC, leverage (net debt / EBITDA,
+  debt / assets), R&D and capex intensity, FCF and EBITDA sign, WACC − g. **Sales growth is
+  excluded:** the panel starts in FY2015, so 1-yr growth is missing for every t = 2015 window
+  and 3-yr growth for t = 2015–17. Each leaf is a method + parameters or a blend weight.
   Deterministic validator.
 - Loop: proposer (mechanism + falsifiable prediction) → blind critic → deterministic grader on
   exploration windows → archive. Claude Code subagents only. 5 runs × 30 proposals.
@@ -131,6 +134,10 @@ and enter the same Holm family. Report every test whatever the result.
 
 ## 8. Robustness (reported, not hypothesis tests)
 
+- **Truth M with and without the outcome-quality filter** (`quality_ok` at t+5 selects on the
+  outcome; T1 and T2 are reported both ways).
+- **Statements at least 90 days old** at the valuation date (2% of start rows are younger).
+
 Horizon 3; Treasury + 5% discount rate; excluding windows whose t or t+5 row has a > 10x market-cap jump with calm assets
 (`mcap_jump_suspect`, 1–2% of windows); truth D restricted to low-leverage targets
 (|net claims| < 20% of market cap); truth D with the old (double-count) definition, for the record; annual ERP instead of monthly; without the quality
@@ -139,15 +146,15 @@ and to PE buyers.
 
 ## 9. Exploration findings already known (disclosure)
 
-See `docs/phase1_exploration.md`. On t = 2015–16:
-- FF12 exit beats Gordon by 0.16 in median |e| (truth M).
-- Gordon bias is +0.25 against M, +0.32 against D, and +0.41 against D′ (corrected deal EV).
-- Exit beats Gordon against M and D.
+See `docs/phase1_exploration.md`, revised after the code review. On t = 2015–16:
+- FF12 exit beats Gordon by 0.126 in median |e| (CI 0.098–0.155; truth M).
+- Gordon bias: +0.20 against M (common sample), +0.13 against D, +0.20 against D′.
+- Exit beats Gordon against M, D and D′.
 - The own multiple is best against M and D′ and nearly tied for best against D.
-- A first deal-EV definition double-counted debt and briefly suggested "Gordon is unbiased
-  against deals"; that finding was withdrawn after the definition test (`docs/exits.md`).
-- Energy supports H3.
-- A fixed blend does not help.
+- Energy supports H3. The blends do not beat the FF12 exit (CIs include 0).
+- Withdrawn earlier findings:
+  - "Gordon unbiased against deals": debt was counted twice in deal EV.
+  - The first-pass Gordon bias of +0.25: wrong small-firm rating table.
 
 ## 10. Limitations (stated in advance)
 
@@ -156,7 +163,15 @@ See `docs/phase1_exploration.md`. On t = 2015–16:
 - Perfect foresight on outcome-year fundamentals isolates formula error, not forecasting error.
 - Market truth is partly circular: markets themselves use multiples. Truth D and Q4 address this.
 - Targets may be selected for undervaluation (truth D).
-- Damodaran industry classification is a 2026 snapshot applied to all years.
+- Industry classifications are snapshots: the Damodaran industry is the 2026 list, and SIC (hence
+  FF12) does not vary over time in the FactSet exports.
+- Damodaran multiples change definition: releases through Jan 2017 have one block; from Jan 2018
+  "all firms" is used. The break falls between the exploration and validation years (H3/T4).
+- Preferred stock is missing in the panel, so it enters neither panel EV nor deal EV.
+- About 2% of start rows have fiscal year-ends less than 90 days before the valuation date
+  (robustness).
+- The deal-EV definition was selected on deals from all years. It was re-checked on
+  exploration deals only and the same reading wins (`scripts/check_deal_ev_definition.py`).
 - About 5% of FactSet market caps are unreliable (screened).
 - FY2024–25 outcomes were seen before (earlier labs).
 - LLM agents may know 2020–25 market history.
@@ -166,4 +181,6 @@ See `docs/phase1_exploration.md`. On t = 2015–16:
 - [x] Q4 deferred to a later pre-registration; truth D co-primary with M (2026-11-07).
 - [x] Literature check (2026-11-07): `docs/literature.md`. Courteau, Kao & Richardson (2001) and
   Kaplan & Ruback (1995) verified; positioning written. Others are listed as "to read".
+- [x] Independent code review (2026-11-07). Fixes and their effect are in
+  `docs/phase1_exploration.md` §5. High severity: wrong small-firm rating table, fixed.
 - [ ] User approval of this file → tag `protocol-v1` → push.

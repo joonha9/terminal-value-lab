@@ -213,7 +213,10 @@ def add_wacc(df: pd.DataFrame) -> pd.DataFrame:
     spreads = pd.read_csv(PROC / "spreads_by_year.csv").set_index(["year", "rating"])["spread"]
     interest = df["interest"]
     coverage = np.where(interest > 0, df["ebit"] / interest, np.inf)
-    coverage = pd.Series(coverage, index=df.index).where(~(interest.isna() & (debt > 0)))
+    # no debt -> infinite coverage (top rating). Debt but interest missing OR zero -> unknown
+    # coverage -> median rating below (zero interest with debt was rated AAA in a first
+    # version; caught in code review 2026-11-07).
+    coverage = pd.Series(coverage, index=df.index).where(~((interest.isna() | interest.le(0)) & (debt > 0)))
     size = np.where(E > LARGE_FIRM_MKT_CAP, "large", "small")
     rating = pd.Series(np.nan, index=df.index, dtype=object)
     for s in ("large", "small"):
@@ -223,7 +226,7 @@ def add_wacc(df: pd.DataFrame) -> pd.DataFrame:
             rating[hit] = r.rating
         top = tab.loc[tab.cov_le.idxmax(), "rating"]
         rating[(size == s) & np.isinf(coverage)] = top
-    df["rating_source"] = np.where(rating.notna(), "coverage", "missing_interest")
+    df["rating_source"] = np.where(rating.notna(), "coverage", "missing_or_zero_interest")
     rating = rating.fillna("Baa2/BBB")  # debt but no interest field: assume the median rating
     df["synthetic_rating"] = rating
     df["spread"] = pd.Series(spreads.reindex(list(zip(t + 1, rating))).to_numpy(), index=df.index)
@@ -264,6 +267,9 @@ def add_quality(df: pd.DataFrame) -> pd.DataFrame:
         calm = (las - las.groupby(df["id"]).shift(k)).abs() < np.log(1.5)
         flag |= adjacent & jump & calm
     df["mcap_jump_suspect"] = flag
+    # days between fiscal year-end and the valuation date; < 90 means the annual report may
+    # not have been public yet on June 30 (robustness: require >= 90)
+    df["stmt_age_days"] = (df["value_date"] - df["fye_date"]).dt.days
     return df
 
 
@@ -290,7 +296,7 @@ START_COLS = ["ticker", "name", "sic", "ff12", "dam_industry", "quality_ok", "mc
               "sbc", "roic", "sales_growth_1y", "sales_growth_3y", "rnd_intensity",
               "ebitda_margin", "tax_rate", "interest_missing", "rf", "erp", "erp_annual",
               "beta_u", "beta_l", "cost_equity", "synthetic_rating", "spread", "wacc",
-              "wacc_simple"]
+              "wacc_simple", "stmt_age_days"]
 
 
 def build_windows(fy: pd.DataFrame, horizon: int = 5) -> pd.DataFrame:
@@ -298,7 +304,8 @@ def build_windows(fy: pd.DataFrame, horizon: int = 5) -> pd.DataFrame:
     inside the data. Outcome status:
       survived        row at t+H with mkt_cap >= $100M
       shrank          row at t+H below $100M (kept: no survivorship filter at t+H)
-      exited          no row at t+H (acquired, delisted, or stopped reporting)
+      exited          no row at t+H and none later (acquired, delisted, or stopped reporting)
+      gap             no row at t+H but the firm reappears later (data gap; not an exit)
     """
     last = fy["fiscal_year"].max()
     start = fy[fy["in_universe"] & fy["fiscal_year"].le(last - horizon)][["id", "fiscal_year", *START_COLS]]
@@ -311,8 +318,10 @@ def build_windows(fy: pd.DataFrame, horizon: int = 5) -> pd.DataFrame:
     for c in OUTCOME_COLS:
         w[f"{c}_tH"] = by[c].reindex(key).to_numpy()
     present = w["ev_tH"].notna()
-    w["status"] = np.select([present & w["in_universe_tH"].eq(True), present], ["survived", "shrank"],
-                            default="exited")
+    last_fy = fy.groupby("id")["fiscal_year"].max()
+    later = w["id"].map(last_fy) > w["t"] + horizon
+    w["status"] = np.select([present & w["in_universe_tH"].eq(True), present, later],
+                            ["survived", "shrank", "gap"], default="exited")
     w["fcf_path_complete"] = w[[f"fcf_t{k}" for k in range(1, horizon + 1)]].notna().all(axis=1)
     w["horizon"] = horizon
     return w.reset_index(drop=True)
