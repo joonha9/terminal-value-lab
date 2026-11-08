@@ -1,8 +1,14 @@
-# Q4 design: does the Gordon-vs-market gap predict stock returns? (DRAFT, not frozen)
+# Q4 design: does the Gordon-vs-market gap predict stock returns? (pre-registration)
 
 Drafted 2026-11-07, after the v1 study closed (`docs/phase4_results.md`). Q4 is a separate
-pre-registration (protocol v1 §1). **Returns have not been downloaded or looked at.**
-Decisions still open are marked **[decide]**.
+pre-registration (protocol v1 §1).
+
+**Status (2026-11-07): frozen before the real run.**
+- Monthly returns were downloaded and checked on their own: coverage, month labels and
+  distribution.
+- **No return has been related to any signal.** The only runs used shuffled (placebo) returns.
+
+An independent code review was done before freezing; its fixes are listed in §10.
 
 **Author decisions (2026-11-07):**
 1. Holdout: option A, the full sample frozen in advance plus a live test.
@@ -154,3 +160,35 @@ Defined where FCF_t > 0 and WACC_t − g ≥ 1 pp (the v1 rule). Coverage is rep
 | Portfolio sorts (reported) | Quintiles of S1, S1a, S1b and S2 at each formation. EW: equal weights each month. VW: formation market cap drifting with each firm's cumulative return. Q5 − Q1 mean (NW t) and alpha on FF5 + UMD (NW lag 6) |
 | Placebo dry run | `--dry-run` shuffles holding-period returns across the analysis firms within each month (seed 0). Every step runs, but no real signal-return relation can appear. On the placebo, no test rejects and all slopes are about 0 |
 | Guards | The real run needs a clean git tree, data hashes matching `docs/q4_pins.json`, and no earlier `results/q4/results.json` |
+
+## 10. Review before freezing (2026-11-07) and what changed
+
+An independent review found nothing high-severity. The fixes and decisions:
+
+1. **S1b and beta (interpretation, stated in advance).** Within a formation, rf and ERP are
+   common to all firms, so the rank of WACC is mostly the rank of the industry beta: the
+   within-formation rank correlation of S1b with beta is −0.68.
+   - With beta controlled (the pre-registered H10), H10b tests the leverage and credit-spread
+     wedge of WACC, given beta. It does not test the discount-rate part as a whole.
+   - **Companion, pre-declared and outside Holm:** H10 without the beta control. It tests the
+     whole discount-rate part, but it is confounded with any low-beta return premium.
+   - Both are reported. The equivalence check for H10b is expected to be inconclusive.
+2. **Multi-security entities.** These are mostly bankruptcy reorganisations: old "…Q" equity,
+   then new equity. Securities are now stitched month by month instead of keeping one per firm,
+   so losses on old equity are no longer dropped.
+3. **Statements under 90 days old** (2.3% of signal rows; fiscal years ending April–June).
+   Robustness: the main tests rerun on statements at least 90 days old, as in v1.
+4. **Winsorization order.** Only FactSet returns are winsorized; delisting returns are added
+   unclipped. Before this fix, the −100% robustness was clipped to about −50%.
+5. **One-shot record.** `results/` is git-ignored. After the run, the SHA-256 of
+   `results/q4/results.json` and the run's commit are recorded in `docs/q4_pins.json` and
+   pushed.
+
+**Known limitations, disclosed:**
+- Momentum is set once a year, from raw returns.
+- Asset growth is missing for the first formation, so its rank is 0 there.
+- Firms with book equity ≤ 0 get the median B/M rank.
+- Newey-West has no small-sample correction: 6 of 35 placebo coefficients had |t| > 1.645,
+  against about 3.5 expected, so there is mild over-rejection.
+- Delistings in July–September 2026, and `acquired_late` or `listed` exits, get no delisting
+  return (23 of 31,796 firm-formations end early without one).

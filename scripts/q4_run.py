@@ -90,7 +90,9 @@ def run(returns: pd.DataFrame, out_dir: Path, label: str, placebo_seed: int | No
             dd["ret"] = dd.groupby("month")["ret"].transform(lambda s: rng.permutation(s.to_numpy()))
         dd["ret_raw"] = dd["ret"]
         lo, hi = (dl_rule or {}).get("winsor", q4.WINSOR)
-        dd["ret"] = q4.winsorize_monthly(dd, "ret_raw", lo, hi) if lo > 0 else dd["ret_raw"]
+        # winsorize FactSet returns only; delisting returns are added unclipped (review fix)
+        dd["ret"] = (q4.winsorize_monthly(dd, "ret_raw", lo, hi, mask=~dd["delist"].astype(bool).to_numpy())
+                     if lo > 0 else dd["ret_raw"])
         dd["exret"] = dd["ret"] - dd["month"].map(rf)
         return dd
 
@@ -114,6 +116,12 @@ def run(returns: pd.DataFrame, out_dir: Path, label: str, placebo_seed: int | No
                     "S1b_within_band": bool(abs(cb["mean"]) + 1.645 * cb["se_nw"] < EQUIV_BAND)}
     # ---- reported only
     res["fm"]["S2_report"] = fm_block(d, ["S2"])
+    # pre-declared companion (outside Holm): S1b is mostly minus industry beta within a formation,
+    # so with beta controlled H10b tests the leverage / credit-spread wedge of WACC; without beta it
+    # tests the whole discount-rate part but is confounded with any low-beta return premium.
+    nb = q4.fama_macbeth(d, ["S1a", "S1b"], controls=[c for c in q4.CONTROLS if c != "beta"])
+    nb.pop("slopes")
+    res["fm"]["H10_without_beta_companion"] = nb
     res["fm"]["H9_no_controls"] = q4.fama_macbeth(d, ["S1"], controls=[])
     res["fm"]["H9_no_controls"].pop("slopes")
     for s in ("S1", "S1a", "S1b", "S2"):
@@ -121,8 +129,11 @@ def run(returns: pd.DataFrame, out_dir: Path, label: str, placebo_seed: int | No
     res["implied_g"] = {str(f): g["S3_implied_g"].describe()[["count", "25%", "50%", "75%"]].round(4).to_dict()
                         for f, g in firm.groupby("formation")}
     for name, rule in (("perf_delist_0", {"perf": 0.0}), ("perf_delist_minus100", {"perf": -1.0}),
-                       ("returns_raw", {"winsor": (0.0, 1.0)}), ("returns_winsor_1_99", {"winsor": (0.01, 0.99)})):
+                       ("returns_raw", {"winsor": (0.0, 1.0)}), ("returns_winsor_1_99", {"winsor": (0.01, 0.99)}),
+                       ("statements_90d", {"min_stmt_age": 90})):
         dd = build(rule)
+        if "min_stmt_age" in rule:
+            dd = dd[dd["stmt_age"] >= rule["min_stmt_age"]]
         res["robustness"][name] = {"H9": fm_block(dd, ["S1"])["coef"]["S1"],
                                    "H10": fm_block(dd, ["S1a", "S1b"])["coef"]}
     return res

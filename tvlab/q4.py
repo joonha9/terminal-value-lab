@@ -48,14 +48,18 @@ def french() -> pd.DataFrame:
 
 
 def pick_security(ret: pd.DataFrame, fy: pd.DataFrame) -> pd.DataFrame:
-    """One security per entity: the one whose symbol matches a panel ticker of the entity;
-    otherwise the one with the most non-missing months (ties: first in sort order)."""
+    """Stitch an entity's securities month by month: in each month keep one return, preferring
+    the security whose symbol matches a panel ticker of the entity, then the security with the
+    most months overall (ties: FDS ticker order). Bankruptcy reorganisations (old "...Q" equity,
+    then the post-emergence equity) are therefore kept in sequence, not dropped (review fix)."""
     tick = fy.groupby("id")["ticker"].apply(lambda s: set(s.dropna().astype(str)))
     g = ret.groupby(["entity_id", "fds_ticker"]).agg(n=("ret", "size"), symbol=("symbol", "first")).reset_index()
     g["match"] = [str(sym) in tick.get(e, set()) for e, sym in zip(g.entity_id, g.symbol)]
     g = g.sort_values(["entity_id", "match", "n", "fds_ticker"], ascending=[True, False, False, True])
-    keep = g.drop_duplicates("entity_id")[["entity_id", "fds_ticker"]]
-    return ret.merge(keep, on=["entity_id", "fds_ticker"])
+    g["prio"] = g.groupby("entity_id").cumcount()
+    r = ret.merge(g[["entity_id", "fds_ticker", "prio"]], on=["entity_id", "fds_ticker"])
+    r = r.sort_values(["entity_id", "month", "prio"]).drop_duplicates(["entity_id", "month"])
+    return r.drop(columns="prio").reset_index(drop=True)
 
 
 def signals(fy: pd.DataFrame) -> pd.DataFrame:
@@ -82,6 +86,7 @@ def signals(fy: pd.DataFrame) -> pd.DataFrame:
         ta_prev = pd.Series(prev.reindex(list(zip(u["id"], u["fiscal_year"] - 1))).to_numpy(), index=u.index)
         out["ag"] = (u["total_assets"] / ta_prev - 1).where(ta_prev > 0)
         out["beta"] = u["beta_l"]
+        out["stmt_age"] = u["stmt_age_days"]
     return out.reset_index(drop=True)
 
 
@@ -96,7 +101,8 @@ def momentum(ret: pd.DataFrame, formation: pd.Period, ids) -> pd.Series:
 
 def delisting_returns(ret: pd.DataFrame, exits: pd.DataFrame, months: list[pd.Period]) -> pd.DataFrame:
     """Return for the first missing month after a security's last valid return, for exited firms:
-    acquired -> 0; inactive with last market cap < $100M or last-12-month return <= -50% -> -30%;
+    acquired -> 0; inactive with last market cap < $100M or a return <= -50% over the 12 calendar
+    months ending at the last valid month -> -30%;
     other inactive (e.g. reorganisations) -> 0. Listed-but-dropped firms get nothing."""
     ex = exits.drop_duplicates("id").set_index("id")
     r = ret.sort_values(["entity_id", "month"])
@@ -130,10 +136,14 @@ def firm_months(sig: pd.DataFrame, ret: pd.DataFrame, rf: pd.Series) -> pd.DataF
     return d
 
 
-def winsorize_monthly(d: pd.DataFrame, col: str, lo: float, hi: float) -> pd.Series:
-    """Clip `col` to its [lo, hi] cross-sectional quantiles within each month."""
-    q = d.groupby("month")[col].quantile([lo, hi]).unstack()
-    return d[col].clip(d["month"].map(q[lo]), d["month"].map(q[hi]))
+def winsorize_monthly(d: pd.DataFrame, col: str, lo: float, hi: float, mask=None) -> pd.Series:
+    """Clip `col` to its [lo, hi] cross-sectional quantiles within each month. With `mask`, the
+    quantiles are computed on, and clipping applied to, the masked rows only (FactSet returns);
+    other rows (delisting returns) pass through unchanged (review fix)."""
+    m = pd.Series(True, index=d.index) if mask is None else pd.Series(mask, index=d.index)
+    q = d[m].groupby("month")[col].quantile([lo, hi]).unstack()
+    clipped = d[col].clip(d["month"].map(q[lo]), d["month"].map(q[hi]))
+    return clipped.where(m, d[col])
 
 
 def rank_scale(x: pd.Series) -> pd.Series:
