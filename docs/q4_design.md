@@ -99,9 +99,9 @@ Defined where FCF_t > 0 and WACC_t − g ≥ 1 pp (the v1 rule). Coverage is rep
 | Data | Source | Status |
 |---|---|---|
 | Fundamentals, EV, WACC at t | existing panel (`data/processed/firm_years.pkl`) | have |
-| Monthly total returns (with dividends), USD, July 2015 – October 2026 (136 months), **including inactive / delisted securities** | FactSet Universal Screening, 12 yearly files (`docs/q4_returns_export.md`) | probe done; **to export** |
+| Monthly total returns (with dividends), USD, July 2015 – October 2026 (136 months), **including inactive / delisted securities** | FactSet Universal Screening, 12 yearly files (`docs/q4_returns_export.md`) | **received 2026-11-07**; all 12 files pass `scripts/build_returns.py` checks; 5,809 of 5,811 panel firms covered |
 | Delisting outcomes | `data/processed/exits.csv` (acquired / inactive / listed) | have |
-| FF5 + momentum factors, risk-free rate (monthly) | Kenneth French data library (free) | to download |
+| FF5 + momentum factors, risk-free rate (monthly) | Kenneth French data library (free) | downloaded 2026-11-07; built from the CRSP 202609 file, so ends **September 2026**. Factor regressions end there; October 2026 returns are used only if the library is updated before the run |
 | Book equity, total assets, gross profit, beta | panel | have |
 
 **Delisting returns (decided).**
