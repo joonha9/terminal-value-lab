@@ -5,5 +5,10 @@
   "exits.csv": "ab5c756346211947a10c748984d03e576414117eac136ffa8f6496f420e0b426",
   "F-F_Research_Data_5_Factors_2x3.csv": "0028f2f3b9f634c34a2bdc0e67dc1e6fc22a2ef18b77177a7926635a785330dd",
   "F-F_Momentum_Factor.csv": "81ff7cab5517159daa5a66c83fd90d4076a0864be2d5fef179719c0f9049a8cb"
+ },
+ "real_run": {
+  "results_sha256": "71fffcd7b73b18a2907ff6ab7a7ed7285313b2a04a09eb571f4dec1041c01e59",
+  "commit": "b0c911c",
+  "date": "2026-11-07"
  }
 }
