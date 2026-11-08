@@ -1,0 +1,9 @@
+{
+ "data_sha256": {
+  "returns_monthly.pkl": "ba484ee5509e5abc5e11249fc62fc2b95d2ddf4fbdec07fddaa1320110c39fdf",
+  "firm_years.pkl": "f846ac98d3fcb3bc69a0882be178a487ce0ebd89e21e71d861e87339a5cfe211",
+  "exits.csv": "ab5c756346211947a10c748984d03e576414117eac136ffa8f6496f420e0b426",
+  "F-F_Research_Data_5_Factors_2x3.csv": "0028f2f3b9f634c34a2bdc0e67dc1e6fc22a2ef18b77177a7926635a785330dd",
+  "F-F_Momentum_Factor.csv": "81ff7cab5517159daa5a66c83fd90d4076a0864be2d5fef179719c0f9049a8cb"
+ }
+}

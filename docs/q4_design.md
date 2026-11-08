@@ -137,3 +137,20 @@ Defined where FCF_t > 0 and WACC_t − g ≥ 1 pp (the v1 rule). Coverage is rep
   after each t. That is a different object from monthly returns, but related: v1's T2/T3 show
   how Gordon_t+5 relates to EV_t+5.
 - The v1 test period showed a market-wide fall in multiples between 2020–21 and 2025–26.
+
+## 9. Operational choices (fixed before the real run; code `tvlab/q4.py`, `scripts/q4_run.py`)
+
+| Item | Choice |
+|---|---|
+| Formation and holding | June 30 of t+1 (the panel valuation date); hold July t+1 to June t+2; 10 full years plus the June 2026 formation through September 2026 |
+| Return months | July 2016 to September 2026: 123 months. The French library ends in September 2026, and excess returns need its RF |
+| Security per firm | The FactSet security whose symbol matches a panel ticker of the entity; otherwise the one with the most months |
+| Delisting month | The first missing month after a security's last return, for firms that `exits.csv` lists as acquired or inactive. Acquired: 0%. Inactive with last market cap < $100M **or** a last-12-month return ≤ −50%: −30% (performance delisting). Other inactive firms, e.g. reorganisations: 0%. Robustness: performance delistings at 0% and −100% |
+| Return outliers | Universe firm-months contain clear data errors: 17 above +1,000%, maximum +42,400%, likely unadjusted splits. Monthly returns are winsorized at the 0.5% and 99.5% cross-sectional quantiles within each month. Robustness: raw returns and 1% / 99%. This was decided after a distribution check of returns alone, before any return was related to a signal |
+| Controls | Size: ln market cap at formation. B/M: ln(book equity / market cap), book equity > 0. Momentum: cumulative return over months −11 to −1 before formation (12-1), at least 8 months. Gross profitability: gross profit / assets. Asset growth: assets_t / assets_t−1 − 1 (missing for the first formation, because the panel starts in FY2015). Beta: the panel's relevered Damodaran industry beta at t |
+| Scaling | Signals and controls are ranked within each formation and scaled to [−0.5, 0.5], so a slope is a monthly long-short spread. A missing control gets 0 (the median rank). Firms without the regressor signal are dropped from that regression |
+| Fama-MacBeth | Monthly OLS of excess returns (return − RF). Newey-West lag 6 on the slope series. One-sided normal p for H9 and H10a; two-sided for H10b. Holm over {H9, H10a, H10b} at 5% |
+| H10b equivalence | Reported as "within band" if \|mean\| + 1.645 SE < 0.25% a month |
+| Portfolio sorts (reported) | Quintiles of S1, S1a, S1b and S2 at each formation. EW: equal weights each month. VW: formation market cap drifting with each firm's cumulative return. Q5 − Q1 mean (NW t) and alpha on FF5 + UMD (NW lag 6) |
+| Placebo dry run | `--dry-run` shuffles holding-period returns across the analysis firms within each month (seed 0). Every step runs, but no real signal-return relation can appear. On the placebo, no test rejects and all slopes are about 0 |
+| Guards | The real run needs a clean git tree, data hashes matching `docs/q4_pins.json`, and no earlier `results/q4/results.json` |
