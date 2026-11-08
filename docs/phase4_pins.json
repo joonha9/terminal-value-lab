@@ -1,0 +1,11 @@
+{
+ "finalists_sha256": "98cf5cb181bb6e0bf8c43cb0f874e597aa30b2ec11c4fd07abb8aeee7288cf7c",
+ "data_sha256": {
+  "firm_years.pkl": "f846ac98d3fcb3bc69a0882be178a487ce0ebd89e21e71d861e87339a5cfe211",
+  "windows_h5.pkl": "3fcc9ee3232e8b5052adccf4211975601c8cc8665683d049c094f6564fc39375",
+  "windows_h3.pkl": "ed9a458265e8cf959bd7873fe93ff2e2117063167bd13217e46e3a257f3b5186",
+  "multiples_by_vintage.csv": "32ee79c96602aaa4afcba546e0033d684637260bc1b0ad44ba894d4aff01c250",
+  "exits.csv": "ab5c756346211947a10c748984d03e576414117eac136ffa8f6496f420e0b426"
+ },
+ "validation": null
+}

@@ -433,6 +433,27 @@ before the agent runs. The scores were never used to change the generator.
 
 The final pool's SHA-1 is recorded in `baselines_explore.json` (`random.pool_sha1`).
 
+### I.4 Reviews before validation was opened (2026-11-07)
+
+After the search, two independent reviews ran before anything was unsealed:
+- the shared Phase 3 code, plus a re-derivation of the 33 finalists, which matched exactly;
+- the new Phase 4 code (`tvlab/phase4.py`, `scripts/phase4.py`).
+
+Neither found anything high-severity. The medium findings were fixed or disclosed before the
+freeze commit.
+
+| Finding | Action |
+|---|---|
+| `boot_diff` gives no one-sided p | The Phase 4 bootstrap uses the same random stream, and the script asserts equality with `boot_diff` |
+| Data files not pinned | SHA-256 of 5 input files is committed in `docs/phase4_pins.json` and checked at both stages; all finalists are re-graded on exploration before unsealing |
+| The test stage did not check what it was given | Chosen recipes are cross-checked against the finalists and validation's choices. Validation's output hashes must be committed before test. Code, data and package versions must equal those recorded at validation |
+| A rerun after a crash was not enforced | A split with earlier unseal-log entries is refused unless the rerun is explicitly acknowledged; those entries are copied into the output. GBMs are fitted before unsealing |
+| Protocol §8 robustness was not computed in the single opening | All §8 items are now computed in the same pass (`phase4.robustness`) |
+| The same deals appear under truth D in several splits | Disclosed. Overlap counts and a sensitivity analysis without earlier-graded deals are reported |
+| The GBM gain share is undefined if the GBM loses to the FF12 exit out of sample | Reported as "undefined". An out-of-year check on exploration suggests this is likely |
+| Float rounding at exact percentile thresholds (about 1 firm per split) | Not changed: grading code stays identical to the search. Disclosed |
+| A failed `git` call read as a clean tree; NaN bootstrap statistics; split-year checks | Fixed: `check=True`, finiteness assert, year assertion on every table |
+
 ---
 
 ## J. What the record says about process
