@@ -15,5 +15,9 @@
   "chosen_random": "rnd-0090",
   "chosen_unconditional": "unc-3",
   "best_single": "E_own"
+ },
+ "test": {
+  "test_sha256": "a231046b1b6b6c284bd7404f5d82b5a6b40b03c77a9ff9a71b834e01f325db4d",
+  "opened": "2026-11-07"
  }
 }
