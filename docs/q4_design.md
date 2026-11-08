@@ -99,7 +99,7 @@ Defined where FCF_t > 0 and WACC_t − g ≥ 1 pp (the v1 rule). Coverage is rep
 | Data | Source | Status |
 |---|---|---|
 | Fundamentals, EV, WACC at t | existing panel (`data/processed/firm_years.pkl`) | have |
-| Monthly total returns (with dividends), USD, June 2015 – latest, **including inactive / delisted firms** | FactSet (Universal Screening or the Excel add-in) | **to export** |
+| Monthly total returns (with dividends), USD, July 2015 – October 2026 (136 months), **including inactive / delisted securities** | FactSet Universal Screening, 12 yearly files (`docs/q4_returns_export.md`) | probe done; **to export** |
 | Delisting outcomes | `data/processed/exits.csv` (acquired / inactive / listed) | have |
 | FF5 + momentum factors, risk-free rate (monthly) | Kenneth French data library (free) | to download |
 | Book equity, total assets, gross profit, beta | panel | have |
@@ -108,6 +108,13 @@ Defined where FCF_t > 0 and WACC_t − g ≥ 1 pp (the v1 rule). Coverage is rep
 - Acquired firms: the return through the last trading month, as reported by FactSet.
 - **Performance delistings** with no final return: −30% in the delisting month (Shumway 1997).
   Robustness at 0% and −100%.
+- **Delisting month (probe finding, proposed):** FactSet leaves the month empty when a
+  security delists mid-month (Allergan, May 2020).
+  - Acquired targets: 0% for that month, because after the announcement the price already sits
+    near the offer.
+  - Performance delistings: −30%.
+  - If FactSet has a last-trade-date field, the partial-month return up to that date is used
+    instead.
 - **Open item:** `exits.csv` "inactive" is not the same as failure. It includes corporate
   reorganisations; for example, Match Group and IAC (2020) are "inactive" with large market
   caps. A rule that identifies performance delistings must be fixed before freezing. The
