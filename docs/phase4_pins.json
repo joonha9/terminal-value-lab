@@ -7,5 +7,13 @@
   "multiples_by_vintage.csv": "32ee79c96602aaa4afcba546e0033d684637260bc1b0ad44ba894d4aff01c250",
   "exits.csv": "ab5c756346211947a10c748984d03e576414117eac136ffa8f6496f420e0b426"
  },
- "validation": null
+ "validation": {
+  "validation_sha256": "c33a05b377ab9325034083a40eb3617b47bfb2968a49d8aad8342e8868744e20",
+  "chosen_sha256": "f93c23fcb487b7d6e027bb3b75cb0b4e17f0a9d42aa2f5ba5eed2747a218d1fb",
+  "opened": "2026-11-07T20:05",
+  "chosen_agent": "a1/g04-02",
+  "chosen_random": "rnd-0090",
+  "chosen_unconditional": "unc-3",
+  "best_single": "E_own"
+ }
 }
